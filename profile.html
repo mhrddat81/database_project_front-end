@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2>Edit Profile</h2>
+    <form id="editProfileForm">
+        <!-- Add Image Section -->
+        <div class="form-group">
+            <label for="profileImage">Add Profile Picture:</label>
+            <input type="file" class="form-control-file" id="profileImage" accept="image/*">
+        </div>
+
+        <!-- Basic Information -->
+        <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input type="text" class="form-control" id="firstName" placeholder="Enter First Name" required>
+        </div>
+        <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" class="form-control" id="lastName" placeholder="Enter Last Name" required>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" placeholder="Enter Email" required>
+        </div>
+        <div class="form-group">
+            <label for="phoneNumber">Phone Number:</label>
+            <input type="tel" class="form-control" id="phoneNumber" placeholder="Enter Phone Number" required>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="form-group">
+            <label for="dob">Date of Birth:</label>
+            <input type="date" class="form-control" id="dob" required>
+        </div>
+        <!-- Add more fields as needed -->
+
+        <!-- Buttons -->
+        <button type="button" class="btn btn-secondary" onclick='window.location.href = "dashboard.html"'>Cancel</button>
+
+        <button type="button" class="btn btn-primary" onclick="submitChanges()">Submit Changes</button>
+    </form>
+</div>
+
+<!-- Include Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="edit-profile-script.js"></script>
+</body>
+</html>

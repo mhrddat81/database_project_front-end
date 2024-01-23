@@ -36,39 +36,50 @@ function displayUserProfile(userData) {
     // You can add more logic here to update additional profile information
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    // Sample data for the transaction history chart
-    var ctx = document.getElementById('transactionHistoryChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Transaction History',
-                data: [],
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 2,
-                fill: false
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    type: 'category',
-                    position: 'bottom',
-                    grid: {
-                        display: false
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Amount'
-                    }
-                }
-            }
-        }
+document.addEventListener("DOMContentLoaded", function () {
+    // Sample dynamic asset data (replace with actual data fetching logic)
+    var assetsData = [
+        { name: 'Asset 1', value: 1000 },
+        { name: 'Asset 2', value: 500 },
+        // Add more assets as needed
+    ];
+
+    // Sample dynamic transaction history data (replace with actual data fetching logic)
+    var transactionHistoryData = [
+        { transaction: 'dollar', amount: 200,status: 'buy', total: 1200, date: '2022-03-01', time: '14:30' },
+        { transaction: 'IR Toman', amount: 100000000, status:'sell', total: 1100, date: '2022-03-02', time: '10:45' },
+        // Add more transaction history entries as needed
+    ];
+
+    // Create and append asset tiles dynamically
+    var assetRow = document.getElementById('asset-row');
+    assetsData.forEach(function (asset) {
+        var col = document.createElement('div');
+        col.className = 'col-md-3';
+        col.innerHTML = `
+            <div class="asset-tile bg-light p-3 text-center">
+                <h5>${asset.name}</h5>
+                <p>$${asset.value}</p>
+            </div>
+        `;
+        assetRow.appendChild(col);
     });
+
+    // Create and append transaction history rows dynamically
+    var transactionHistoryTableBody = document.querySelector('tbody');
+    transactionHistoryData.forEach(function (transaction) {
+        var row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${transaction.transaction}</td>
+            <td>${transaction.amount}</td>
+            <td>${transaction.status}</td>
+            <td>${transaction.total}</td>
+            <td>${transaction.date}</td>
+            <td>${transaction.time}</td>
+        `;
+        transactionHistoryTableBody.appendChild(row);
+    });
+
+    // Continue with the rest of your JavaScript code for the chart
 });
+
