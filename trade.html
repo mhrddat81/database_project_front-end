@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Window</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2>Trade Now</h2>
+    <p>Your Wallet Amount: <span id="walletAmount">$1000</span></p>
+
+    <!-- Dynamic Table of Currencies -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Currency</th>
+                <th>Amount</th>
+                <th>Buy/Sell</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="currencyTableBody">
+            <!-- Initial row with the "Add" button -->
+            <tr>
+                <td>
+                    <select class="form-control">
+                        <!-- Currencies will be dynamically added here -->
+                    </select>
+                </td>
+                <td><input type="number" class="form-control" placeholder="Enter Amount" min="0"></td>
+                <td>
+                    <select class="form-control">
+                        <option value="buy">Buy</option>
+                        <option value="sell">Sell</option>
+                    </select>
+                </td>
+                <td><span class="price">0</span></td>
+                <td><button type="button" class="btn btn-danger" onclick="removeRow(this)">Remove</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Add Row Button -->
+    <button type="button" class="btn btn-success" onclick="addRow()">Add</button>
+
+    <!-- Cancel Button -->
+    <button type="button" class="btn btn-secondary ml-2" onclick="cancelTrade()">Cancel</button>
+
+    <!-- Submit Purchase Button -->
+    <button type="button" class="btn btn-primary ml-auto" onclick="submitPurchase()">Submit Purchase</button>
+</div>
+
+<!-- Include Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="trade_script.js"></script>
+</body>
+</html>
