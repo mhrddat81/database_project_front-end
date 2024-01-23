@@ -83,6 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Continue with the rest of your JavaScript code for the chart
 });
 
+// Function to update the transaction history in the dashboard
 function updateTransactionHistory() {
     var transactionHistoryTableBody = document.getElementById('transactionHistoryTableBody');
 
@@ -91,9 +92,9 @@ function updateTransactionHistory() {
     var currentTime = new Date().toLocaleTimeString('en-US', { hour12: false });
 
     // Sample transaction data (replace with actual data fetching logic)
-    var selectedCurrency = document.getElementById('currencySelect').value;
+    var selectedCurrency = document.querySelector('.currency-select').value;
     var transactionType = document.getElementById('buySellSelect').value;
-    var transactionAmount = parseFloat(document.getElementById('amountInput').value);
+    var transactionAmount = parseFloat(document.querySelector('.amount-input').value);
 
     // Add the new transaction to the transaction history
     transactionHistoryData.unshift({
