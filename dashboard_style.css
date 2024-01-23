@@ -1,0 +1,79 @@
+/* Add your custom styles in styles.css */
+
+body {
+    padding-top: 20px;
+}
+
+.sidebar {
+    background-color: #f8f9fa;
+    height: 100vh;
+    padding: 20px;
+}
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    max-width: 100%;
+}
+
+.nav-link {
+    transition: background-color 0.3s;
+    margin-bottom: 10px;
+}
+
+.nav-link:hover {
+    background-color: #d1d1d1;
+}
+
+.profile {
+    text-align: center;
+}
+
+.profile-pic {
+    max-width: 100px;
+    margin-bottom: 10px;
+}
+
+.user-name {
+    margin-bottom: 5px;
+}
+
+.edit-profile {
+    color: #007bff;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.brief-info {
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
+    padding: 15px;
+    text-align: left;
+}
+
+.btn-trade-now {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Styles for the Main Content */
+.asset-tile {
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
+    padding: 15px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.add-currency-tile {
+    border: 2px dashed #28a745;
+    color: #28a745;
+}
+
+.btn-add-currency {
+    font-size: 24px;
+}
