@@ -3,18 +3,29 @@ var currencyData = [
     { currency: 'USD', price: 1.00 },
     { currency: 'EUR', price: 0.85 },
     { currency: 'GBP', price: 0.73 },
+    { currency: 'IRR', price: 0.01 },
+    { currency: 'TRL', price: 0.24 },
+    { currency: 'BTC', price: 10}
     // Add more currencies as needed
 ];
 
+var walletData = {
+    'IR Rial': 1000,
+    'US Dollar': 1000,
+    'TRL': 1000,
+    'Bitcoin': 10,
+};
 // Function to dynamically create and populate the currency dropdown
 function populateCurrencyDropdown() {
-    var currencySelect = document.getElementById('currencySelect');
+    var currencySelects = document.querySelectorAll('.currency-select');
 
-    currencyData.forEach(function (currency) {
-        var option = document.createElement('option');
-        option.value = currency.currency;
-        option.textContent = currency.currency;
-        currencySelect.appendChild(option);
+    currencySelects.forEach(function (currencySelect) {
+        currencyData.forEach(function (currency) {
+            var option = document.createElement('option');
+            option.value = currency.currency;
+            option.textContent = currency.currency;
+            currencySelect.appendChild(option);
+        });
     });
 }
 
@@ -25,13 +36,13 @@ function addRow() {
     var newRow = document.createElement('tr');
     newRow.innerHTML = `
         <td>
-            <select class="form-control">
+            <select class="form-control currency-select">
                 <!-- Currencies will be dynamically added here -->
             </select>
         </td>
-        <td><input type="number" class="form-control" placeholder="Enter Amount" min="0"></td>
+        <td><input type="number" class="form-control amount-input" placeholder="Enter Amount" min="0"></td>
         <td>
-            <select class="form-control">
+            <select class="form-control" id="buySellSelect">
                 <option value="buy">Buy</option>
                 <option value="sell">Sell</option>
             </select>
@@ -55,7 +66,7 @@ function removeRow(button) {
 function updatePrice(row) {
     var currencySelect = row.cells[0].getElementsByTagName('select')[0];
     var amountInput = row.cells[1].getElementsByTagName('input')[0];
-    var priceSpan = row.cells[3].getElementsByTagName('span')[0];
+    var priceSpan = row.cells[3].getElementsByClassName('price')[0];
 
     var selectedCurrency = currencySelect.value;
     var amount = parseFloat(amountInput.value);
@@ -85,10 +96,11 @@ function submitPurchase() {
     // Implement logic for submitting the purchase and updating the wallet amount
     // ...
 
-    // Sample logic to update wallet amount (replace with actual data fetching logic)
-    var walletAmountElement = document.getElementById('walletAmount');
-    var walletAmount = 1000; // Replace with actual wallet amount
-    walletAmountElement.textContent = '$' + walletAmount;
+    // Update wallet amount after the trade (replace with actual data fetching logic)
+    updateWalletAmount();
+
+    // Update transaction history in the dashboard window
+    updateTransactionHistory();
 
     // Show a success message or handle the result accordingly
     alert('Purchase submitted successfully!');
@@ -98,4 +110,14 @@ function submitPurchase() {
 document.addEventListener("DOMContentLoaded", function () {
     // Populate the currency dropdown
     populateCurrencyDropdown();
+    
+    // Add event listeners for dynamic updates
+    var currencyTableBody = document.getElementById('currencyTableBody');
+    currencyTableBody.addEventListener('change', function (event) {
+        var target = event.target;
+        if (target.tagName === 'SELECT' || target.tagName === 'INPUT') {
+            var row = target.closest('tr');
+            handleRowChange(row);
+        }
+    });
 });

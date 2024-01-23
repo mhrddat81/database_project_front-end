@@ -46,8 +46,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Sample dynamic transaction history data (replace with actual data fetching logic)
     var transactionHistoryData = [
-        { transaction: 'dollar', amount: 200,status: 'buy', total: 1200, date: '2022-03-01', time: '14:30' },
-        { transaction: 'IR Toman', amount: 100000000, status:'sell', total: 1100, date: '2022-03-02', time: '10:45' },
+        { transaction: 'USD', amount: 200,status: 'buy', total: 1200, date: '2022-03-01', time: '14:30' },
+        { transaction: 'IRR', amount: 100000000, status:'sell', total: 1100, date: '2022-03-02', time: '10:45' },
         // Add more transaction history entries as needed
     ];
 
@@ -83,3 +83,39 @@ document.addEventListener("DOMContentLoaded", function () {
     // Continue with the rest of your JavaScript code for the chart
 });
 
+function updateTransactionHistory() {
+    var transactionHistoryTableBody = document.getElementById('transactionHistoryTableBody');
+
+    // Get current date and time
+    var currentDate = new Date().toISOString().split('T')[0];
+    var currentTime = new Date().toLocaleTimeString('en-US', { hour12: false });
+
+    // Sample transaction data (replace with actual data fetching logic)
+    var selectedCurrency = document.getElementById('currencySelect').value;
+    var transactionType = document.getElementById('buySellSelect').value;
+    var transactionAmount = parseFloat(document.getElementById('amountInput').value);
+
+    // Add the new transaction to the transaction history
+    transactionHistoryData.unshift({
+        currency: selectedCurrency,
+        amount: transactionAmount,
+        status: transactionType,
+        date: currentDate,
+        time: currentTime,
+    });
+
+    // Update transaction history table in the UI
+    transactionHistoryTableBody.innerHTML = ''; // Clear existing rows
+
+    transactionHistoryData.forEach(function (transaction) {
+        var row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${transaction.currency}</td>
+            <td>${transaction.amount}</td>
+            <td>${transaction.status}</td>
+            <td>${transaction.date}</td>
+            <td>${transaction.time}</td>
+        `;
+        transactionHistoryTableBody.appendChild(row);
+    });
+}
