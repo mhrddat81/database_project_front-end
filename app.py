@@ -7,15 +7,15 @@ from datetime import datetime
 root_db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="ُشمشیثناهغشق1382",
-    database="ExchangeManagement"
+    password="admin",
+    database="project"
 )
 
 cursor = root_db.cursor()
 
 # region Initial Queries
 
-cursor.execute("CREATE DATABASE IF NOT EXISTS ExchangeManagement")
+cursor.execute("CREATE DATABASE IF NOT EXISTS project")
 
 # region Tables Creation
 
