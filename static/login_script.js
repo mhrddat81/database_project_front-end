@@ -1,19 +1,34 @@
 function login() {
-    // Simple login logic
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
 
-    // You can replace this with your actual authentication logic
-    if (username === 'demo' && password === 'password') {
-        window.location.href = 'dashboard.html';
-    } else if (username === null || password === null) {
-        alert('Invalid username or password. Please try again.');
-    }
-    
+    // Send login credentials to the server for authentication
+    fetch('/authenticate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // If authentication is successful, redirect to the dashboard
+            window.location.href = '/dashboard';
+        } else {
+            alert('Invalid username or password. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 }
 
 function goToForgotPassword() {
-    window.location.href = 'forgot-password.html';
+    window.location.href = 'forgot_password.html';
 }
 
 function sendRecoveryEmail() {

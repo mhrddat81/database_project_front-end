@@ -1,5 +1,5 @@
 import random
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 import mysql.connector
 from faker import Faker
 from datetime import datetime
@@ -186,6 +186,8 @@ fake = Faker()
 
 app = Flask(__name__)
 
+hardcoded_username = 'admin'
+hardcoded_password = 'admin'
 
 @app.route('/')
 def index():
@@ -195,6 +197,7 @@ def index():
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
+
 
 
 @app.route('/trade_window')
@@ -216,6 +219,17 @@ def profile():
 def forgot_password():
     return render_template('forgot_password.html')
 
+
+@app.route('/authenticate', methods=['POST'])
+def authenticate():
+    data = request.json
+    entered_username = data.get('username')
+    entered_password = data.get('password')
+
+    if entered_username == hardcoded_username and entered_password == hardcoded_password:
+        return jsonify(success=True)
+    else:
+        return jsonify(success=False)
 
 # region default queries
 
