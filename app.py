@@ -7,7 +7,7 @@ from datetime import datetime
 root_db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="ُ12345678",
+    password="ُشمشیثناهغشق1382",
     database="ExchangeManagement"
 )
 
@@ -121,13 +121,24 @@ fake = Faker()
 #  ('SEK', 'Swedish Krona'), ('BRL', 'Brazilian Real'), ('INR', 'Indian Rupee'), ('ZAR', 'South African Rand')""")
 # root_db.commit()
 
-# for walletID in range(1, 3000):
-#     query = """INSERT INTO WalletCurrency (WalletID, CurrencyCode, Amount)
-#      VALUES (%s, %s, %s)"""
+# for i in range(1, 10000):
+#     query_select = "SELECT WalletID, CurrencyCode FROM WalletCurrency WHERE WalletID = %s AND CurrencyCode = %s"
+#     query_insert = "INSERT INTO WalletCurrency (WalletID, CurrencyCode, Amount) VALUES (%s, %s, %s)"
+#
 #     currencyCode = fake.random_element(elements=('USD', 'EUR', 'GBP', 'JPY', 'IRR', 'CAD', 'AUD', 'CHF', 'RUB', 'CNY',
 #                                                  'TRY', 'NZD', 'SEK', 'BRL', 'INR', 'ZAR'))
+#     walletID = fake.random_int(min=1, max=2999)
+#
+#     cursor.execute(query_select, (walletID, currencyCode))
+#     fetch = cursor.fetchall()
+#
+#     while fetch:
+#         walletID = fake.random_int(min=1, max=2999)
+#         cursor.execute(query_select, (walletID, currencyCode))
+#         fetch = cursor.fetchall()
+#
 #     val = (walletID, currencyCode, fake.random_int(min=1, max=100000))
-#     cursor.execute(query, val)
+#     cursor.execute(query_insert, val)
 #     root_db.commit()
 
 # marketID = 1
@@ -204,6 +215,43 @@ def profile():
 @app.route('/forgot_password')
 def forgot_password():
     return render_template('forgot_password.html')
+
+
+# region default queries
+
+@app.route('/get_user_wallet_balances/<int:userID>')
+def get_user_wallet_balances(userID):
+    query = """SELECT CurrencyCode, Amount FROM WalletCurrency
+    WHERE WalletID IN (SELECT WalletID FROM Wallet WHERE UserID = %s)"""
+    cursor.execute(query, (userID,))
+    fetch = cursor.fetchall()
+    return {'data': fetch}
+
+
+@app.route('/get_currency_transactions_in_date_range/<string:firstCurrencyCode>/<string:secondCurrencyCode>/<string'
+           ':startDate>/<string:endDate>')
+def get_currency_transactions_in_date_range(firstCurrencyCode, secondCurrencyCode, startDate, endDate):
+    query = """SELECT * FROM UserTransaction
+    WHERE MarketID IN (SELECT MarketID FROM Market WHERE BaseCurrencyCode = %s AND TargetCurrencyCode = %s)
+    AND TransactionDate BETWEEN %s AND %s"""
+    cursor.execute(query, (firstCurrencyCode, secondCurrencyCode, startDate, endDate))
+    fetch1 = cursor.fetchall()
+    cursor.execute(query, (secondCurrencyCode, firstCurrencyCode, startDate, endDate))
+    fetch2 = cursor.fetchall()
+    return {'data': fetch1 + fetch2}
+
+
+@app.route('/get_transactions_summary_in_month/<string:month>/<string:year>')
+def get_transactions_summary_in_month(month, year):
+    query = """SELECT TargetCurrencyCode, SUM(BoughtAmount) AS TotalAmount, COUNT(*) AS TransactionCount
+    FROM UserTransaction, Market
+    WHERE MONTH(TransactionDate) = %s AND YEAR(TransactionDate) = %s AND UserTransaction.MarketID = Market.MarketID
+    GROUP BY TargetCurrencyCode"""
+    cursor.execute(query, (month, year))
+    fetch = cursor.fetchall()
+    return {'data': fetch}
+
+# endregion
 
 
 if __name__ == '__main__':
