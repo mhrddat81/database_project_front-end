@@ -47,3 +47,40 @@ function register() {
     // Add logic to handle user registration
     alert('User registered!\nUsername: ' + newUsername + '\nPassword: ' + newPassword);
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    var recoveryForm = document.getElementById('recoveryForm');
+
+    recoveryForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        var email = document.getElementById('email').value;
+
+        // Add logic to send recovery email
+        sendRecoveryEmail(email);
+    });
+
+    function sendRecoveryEmail(email) {
+        // Add AJAX or fetch request to send recovery email
+        fetch('/process_recovery', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Password recovery email sent to ' + email);
+            } else {
+                alert('Failed to send recovery email. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+});

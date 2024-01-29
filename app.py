@@ -220,6 +220,18 @@ def forgot_password():
     return render_template('forgot_password.html')
 
 
+@app.route('/process_recovery', methods=['POST'])
+def process_recovery():
+    data = request.json
+    email = data.get('email')
+
+    # Add logic to send recovery email
+    # For demonstration purposes, let's assume the email is sent successfully
+    # In a real application, you would send an email with a unique link for password reset
+
+    return jsonify(success=True)
+
+
 @app.route('/authenticate', methods=['POST'])
 def authenticate():
     data = request.json

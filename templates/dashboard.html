@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Update the URL for the stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard_style.css') }}">
+    <link rel="stylesheet" href="dashboard_style.css">
     <title>Simple Dashboard</title>
 </head>
 <body>
@@ -16,8 +15,7 @@
             <!-- Menu Bar -->
             <div class="col-md-2 sidebar">
                 <div class="logo-container">
-                    <!-- Update the URL for the logo -->
-                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="img-fluid logo" style="padding: 20px;">
+                    <img src="logo.png" alt="Logo" class="img-fluid logo" style="padding: 20px;">
                 </div>
                 <ul class="nav flex-column">
                     <li class="nav-item">
@@ -48,6 +46,7 @@
                 </ul>
             </div>
 
+
             <!-- main part -->
             <div class="col-md-7 main-content">
                 <!-- Upper Row: Dynamic Assets -->
@@ -57,8 +56,8 @@
                         <h5>Add New Currency</h5>
                         <button class="btn btn-success btn-add-currency">+</button>
                     </div>
-                </div>
-
+                </div>           
+            
                 <!-- Lower Row: Transaction History Table -->
                 <div class="row">
                     <div class="col-md-12">
@@ -81,17 +80,16 @@
                     </div>
                 </div>
             </div>
+            
 
             <!-- Right Column -->
             <div class="col-md-3 sidebar">
                 <div class="profile text-center mb-4">
-                    <!-- Update the URL for the profile picture -->
-                    <img src="{{ url_for('static', filename='profile-pic.jpg') }}" alt="Profile Picture" class="img-fluid rounded-circle profile-pic">
+                    <img src="profile-pic.jpg" alt="Profile Picture" class="img-fluid rounded-circle profile-pic">
                     <h4 class="user-name mt-2">User Name</h4>
-                    <!-- Update the URL for the Edit Profile link -->
-                    <a href="{{ url_for('edit_profile') }}" class="edit-profile">Edit Profile</a>
+                    <a href="profile.html" class="edit-profile">Edit Profile</a>
                 </div>
-
+            
                 <div class="wallet-currencies mb-4">
                     <h5 class="mb-3">Currencies</h5>
                     <ul class="list-group">
@@ -101,18 +99,20 @@
                         <!-- Add more currencies as needed -->
                     </ul>
                 </div>
-
+            
                 <div class="trade-now text-center">
-                    <!-- Update the URL for the Trade Now button -->
-                    <button class="btn btn-primary btn-trade-now" onclick="window.location.href = '{{ url_for('trade_window') }}'">Trade Now</button> 
+                    <button class="btn btn-primary btn-trade-now" onclick="window.location.href ='trade.html' ">Trade Now</button>
                 </div>
             </div>
+            
+
+
+        </div>
     </div>
 
-    <!-- Update the URLs for the scripts -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="{{ url_for('static', filename='dashboard_script.js') }}"></script>
+    <script src="dashboard_script.js"></script>
 </body>
 </html>
