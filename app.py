@@ -231,9 +231,10 @@ def get_user_wallet_balances(userID):
 @app.route('/get_currency_transactions_in_date_range/<string:firstCurrencyCode>/<string:secondCurrencyCode>/<string'
            ':startDate>/<string:endDate>')
 def get_currency_transactions_in_date_range(firstCurrencyCode, secondCurrencyCode, startDate, endDate):
-    query = """SELECT * FROM UserTransaction
+    query = """SELECT TransactionID, Users.* FROM UserTransaction, Users
     WHERE MarketID IN (SELECT MarketID FROM Market WHERE BaseCurrencyCode = %s AND TargetCurrencyCode = %s)
-    AND TransactionDate BETWEEN %s AND %s"""
+    AND TransactionDate BETWEEN %s AND %s
+    AND UserTransaction.UserID = Users.UserID"""
     cursor.execute(query, (firstCurrencyCode, secondCurrencyCode, startDate, endDate))
     fetch1 = cursor.fetchall()
     cursor.execute(query, (secondCurrencyCode, firstCurrencyCode, startDate, endDate))
@@ -250,6 +251,34 @@ def get_transactions_summary_in_month(month, year):
     cursor.execute(query, (month, year))
     fetch = cursor.fetchall()
     return {'data': fetch}
+
+
+@app.route('/get_top_5_users_with_most_exchanged_amount_in_market_in_year/<string:marketID>/<string:year>')
+def get_top_5_users_with_most_exchanged_amount_in_market_in_year(marketID, year):
+    query = """SELECT Users.*, SUM(BoughtAmount) AS TotalAmount
+    FROM UserTransaction, Users
+    WHERE MarketID = %s AND YEAR(TransactionDate) = %s AND UserTransaction.UserID = Users.UserID
+    GROUP BY UserTransaction.UserID
+    ORDER BY TotalAmount DESC
+    LIMIT 5"""
+    cursor.execute(query, (marketID, year))
+    fetch = cursor.fetchall()
+    return {'data': fetch}
+
+
+@app.route('/get_avg_count_currency_transaction_amount_in_date_range/<string:firstCurrencyCode>/<string:secondCurrencyCode>'
+           '/<string:startDate>/<string:endDate>')
+def get_avg_count_currency_transaction_amount_in_date_range(firstCurrencyCode, secondCurrencyCode, startDate, endDate):
+    query = """SELECT AVG(BoughtAmount) AS AvgAmount, COUNT(*) AS TransactionCount
+    FROM UserTransaction, Market
+    WHERE BaseCurrencyCode = %s AND TargetCurrencyCode = %s
+    AND TransactionDate BETWEEN %s AND %s
+    AND UserTransaction.MarketID = Market.MarketID"""
+    cursor.execute(query, (firstCurrencyCode, secondCurrencyCode, startDate, endDate))
+    fetch1 = cursor.fetchall()
+    cursor.execute(query, (secondCurrencyCode, firstCurrencyCode, startDate, endDate))
+    fetch2 = cursor.fetchall()
+    return {firstCurrencyCode + '/' + secondCurrencyCode: fetch1, secondCurrencyCode + '/' + firstCurrencyCode: fetch2}
 
 # endregion
 
