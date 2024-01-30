@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="login_style.css">
+    <link rel="stylesheet" href="{{ url_for('send_static', path='login_style.css') }}">
     <title>Login Page</title>
 </head>
 <body>
@@ -35,7 +35,7 @@
         </div>
     </div>
 
-    <script src="login_script.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="{{ url_for('send_static', path='login_script.js') }}"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 import random
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 import mysql.connector
 from faker import Faker
 from datetime import datetime
@@ -189,6 +189,10 @@ app = Flask(__name__)
 hardcoded_username = 'admin'
 hardcoded_password = 'admin'
 
+@app.route('/static/<path:path>')
+def send_static(path):
+    return send_from_directory('static', path)
+
 @app.route('/')
 def index():
     return render_template('login.html')
@@ -243,8 +247,41 @@ def authenticate():
         return jsonify(success=True)
     else:
         return jsonify(success=False)
+    
 
+@app.route('/get_user_profile_data')
+def get_user_profile_data():
+    # Replace this with your actual logic to fetch user profile data from the server
+    user_profile_data = {
+        'name': 'John Doe',
+        'profilePic': 'profile-pic.jpg',
+        # Add more profile data as needed
+    }
+    return jsonify(user_profile_data)
+
+
+@app.route('/get_assets_data')
+def get_assets_data():
+    # Replace this with your actual logic to fetch dynamic asset data from the server
+    assets_data = [
+        {'name': 'Asset 1', 'value': 1000},
+        {'name': 'Asset 2', 'value': 500},
+        # Add more assets as needed
+    ]
+    return jsonify(assets_data)
+
+
+@app.route('/get_transaction_history_data')
+def get_transaction_history_data():
+    # Replace this with your actual logic to fetch transaction history data from the server
+    transaction_history_data = [
+        {'transaction': 'USD', 'amount': 200, 'status': 'buy', 'total': 1200, 'date': '2022-03-01', 'time': '14:30'},
+        {'transaction': 'IRR', 'amount': 100000000, 'status': 'sell', 'total': 1100, 'date': '2022-03-02', 'time': '10:45'},
+        # Add more transaction history entries as needed
+    ]
+    return jsonify(transaction_history_data)
 # region default queries
+
 
 @app.route('/get_user_wallet_balances/<int:userID>')
 def get_user_wallet_balances(userID):

@@ -1,32 +1,31 @@
+
+const authenticateURL = '/authenticate';
+
 function login() {
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
 
-    // Prepare data to send in the AJAX request
-    var requestData = {
-        username: username,
-        password: password
-    };
-
-    // Make an AJAX request to the Flask server
-    $.ajax({
-        type: 'POST',
-        url: '/authenticate',
-        contentType: 'application/json;charset=UTF-8',
-        data: JSON.stringify(requestData),
-        success: function(response) {
-            if (response.success) {
-                // Authentication success, redirect to the dashboard
-                window.location.href = 'dashboard.html';
-            } else {
-                // Authentication failed, show an alert or handle accordingly
-                alert('Authentication failed. Invalid username or password.');
-            }
+    fetch('/authenticate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
         },
-        error: function(error) {
-            // Handle any error that occurs during the AJAX request
-            console.error('Error during authentication:', error.responseText);
+        body: JSON.stringify({
+            username: username,
+            password: password,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = '/dashboard';  // Redirect on successful login
+        } else {
+            alert('Invalid username or password. Please try again.');
         }
+    })
+    .catch(error => {
+        console.error('Error during authentication:', error);
+        alert('An error occurred during authentication. Please try again.');
     });
 }
 
