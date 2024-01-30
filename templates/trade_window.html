@@ -11,7 +11,17 @@
 
 <div class="container mt-5">
     <h2>Trade Now</h2>
-    <p>Your Wallet Amount: <span id="walletAmount">$1000</span></p>
+
+    <!-- Input fields for base and target currencies -->
+    <div class="form-group">
+        <label for="baseCurrency">Base Currency:</label>
+        <input type="text" class="form-control" id="baseCurrency" placeholder="Enter Base Currency">
+    </div>
+
+    <div class="form-group">
+        <label for="targetCurrency">Target Currency:</label>
+        <input type="text" class="form-control" id="targetCurrency" placeholder="Enter Target Currency">
+    </div>
 
     <!-- Dynamic Table of Currencies -->
     <table class="table">
@@ -19,7 +29,7 @@
             <tr>
                 <th>Currency</th>
                 <th>Amount</th>
-                <th>Buy/Sell</th>
+                <th>Target</th>
                 <th>Price</th>
                 <th>Action</th>
             </tr>
@@ -32,9 +42,9 @@
                         <!-- Currencies will be dynamically added here -->
                     </select>
                 </td>
-                <td><input type="number" class="form-control" placeholder="Enter Amount" min="0"></td>
+                <td><input type="number" class="form-control amount-input" placeholder="Enter Amount" min="0"></td>
                 <td>
-                    <select class="form-control" id="buySellSelect">
+                    <select class="form-control" id="targetSelect">
                         <option value="buy">Buy</option>
                         <option value="sell">Sell</option>
                     </select>
@@ -52,7 +62,7 @@
     <button type="button" class="btn btn-secondary ml-2" onclick="cancelTrade()">Cancel</button>
 
     <!-- Submit Purchase Button -->
-    <button type="button" class="btn btn-primary ml-auto" id="submitPurchaseBtn">Submit Purchase</button>
+    <button type="button" class="btn btn-primary ml-auto" id="submitPurchaseBtn" onclick="submitPurchase()">Submit Purchase</button>
 </div>
 
 <!-- Include Bootstrap JS and jQuery -->
@@ -60,5 +70,47 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="{{ url_for('static', filename='trade_script.js') }}"></script>
+
+<script>
+    // Function to handle trade button click
+    function submitPurchase() {
+        // Gather data from the form
+        var baseCurrency = document.getElementById('baseCurrency').value;
+        var targetCurrency = document.getElementById('targetCurrency').value;
+        var selectedCurrency = document.querySelector('.currency-select').value;
+        var transactionType = document.getElementById('targetSelect').value;
+        var transactionAmount = parseFloat(document.querySelector('.amount-input').value);
+
+        // Send an AJAX request to submit the purchase
+        fetch('/submit_purchase', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                baseCurrency: baseCurrency,
+                targetCurrency: targetCurrency,
+                selectedCurrency: selectedCurrency,
+                amount: transactionAmount,
+                type: transactionType,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Check if the purchase was submitted successfully
+            if (data.success) {
+                // Redirect to the dashboard or perform any other necessary action
+                console.log('Trade submitted successfully!');
+            } else {
+                // Handle any errors or show a message to the user
+                console.error('Failed to submit purchase:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error during submit purchase request:', error);
+        });
+    }
+</script>
+
 </body>
 </html>

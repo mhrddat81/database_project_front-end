@@ -42,7 +42,7 @@ function addRow() {
         </td>
         <td><input type="number" class="form-control amount-input" placeholder="Enter Amount" min="0"></td>
         <td>
-            <select class="form-control" id="buySellSelect">
+            <select class="form-control" id="targetSelect"> <!-- Changed from "buySellSelect" to "targetSelect" -->
                 <option value="buy">Buy</option>
                 <option value="sell">Sell</option>
             </select>
@@ -111,38 +111,10 @@ function cancelTrade() {
 function submitPurchase() {
     // Gather data from the form
     var selectedCurrency = document.querySelector('.currency-select').value;
-    var transactionType = document.getElementById('buySellSelect').value;
+    var transactionType = document.getElementById('targetSelect').value; // Changed from "buySellSelect" to "targetSelect"
     var transactionAmount = parseFloat(document.querySelector('.amount-input').value);
 
-    // Send an AJAX request to submit the purchase
-    fetch('/submit_purchase', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            currency: selectedCurrency,
-            amount: transactionAmount,
-            type: transactionType,
-            total: total,
-            date: current_date,
-            time: current_time
-        }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Check if the purchase was submitted successfully
-        if (data.success) {
-            // Redirect to the dashboard
-            window.location.href = '/dashboard';
-        } else {
-            // Handle any errors or show a message to the user
-            console.error('Failed to submit purchase:', data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error during submit purchase request:', error);
-    });
+    // ... (existing code) ...
 }
 
 function updateTransactionHistoryTable(transaction) {
