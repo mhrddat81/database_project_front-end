@@ -4,23 +4,40 @@ import mysql.connector
 from faker import Faker
 from datetime import datetime
 
+database_name = "exchangeManagement"
+admins = {"admin": "admin123", "report": "report123", "usermanager": "usermanager123"}
+
 root_db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="admin",
-    database="project"
+    password="ُشمشیثناهغشق1382",
+    database=database_name
 )
 
 cursor = root_db.cursor()
 
+# region user creation queries
+# cursor.execute("""CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY 'admin123'""")
+# cursor.execute(f"""GRANT ALL PRIVILEGES ON {database_name}.* TO 'admin'@'localhost'""")
+#
+# cursor.execute("""CREATE USER IF NOT EXISTS 'report'@'localhost' IDENTIFIED BY 'report123'""")
+# cursor.execute(f"""GRANT SELECT ON {database_name}.* TO 'report'@'localhost'""")
+#
+# cursor.execute("""CREATE USER IF NOT EXISTS 'usermanager'@'localhost' IDENTIFIED BY 'usermanager123'""")
+# cursor.execute(f"""GRANT ALL PRIVILEGES ON {database_name}.users TO 'usermanager'@'localhost'""")
+
+# cursor.execute("""CREATE USER IF NOT EXISTS 'user'@'localhost' IDENTIFIED BY 'user123'""")
+# cursor.execute(f"""GRANT SELECT, INSERT, UPDATE, DELETE ON {database_name}.* TO 'user'@'localhost'""")
+
 # region Initial Queries
 
-cursor.execute("CREATE DATABASE IF NOT EXISTS project")
+cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
 
 # region Tables Creation
 
 cursor.execute("""CREATE TABLE IF NOT EXISTS Users(
     UserID bigint NOT NULL PRIMARY KEY,
+    Username char(30) NOT NULL UNIQUE,
     UserPassword char(30) NOT NULL,
     FirstName char(30),
     LastName char(30),
@@ -99,6 +116,21 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS UserTransaction(
 # region Random data generation
 
 fake = Faker()
+
+# for userID in range(1, 1000):
+#     query = """UPDATE Users SET Username = %s WHERE UserID = %s"""
+#     username = fake.user_name()
+#
+#     cursor.execute("""SELECT UserID FROM Users WHERE Username = %s""", (username,))
+#
+#     if cursor.fetchall():
+#         while cursor.fetchall():
+#             username = fake.user_name()
+#             cursor.execute("""SELECT UserID FROM Users WHERE Username = %s""", (username,))
+#
+#     val = (username, userID)
+#     cursor.execute(query, val)
+#     root_db.commit()
 
 # for userID in range(1, 1000):
 #     query = """INSERT INTO Users (UserID, UserPassword, FirstName, LastName, Address, Email)
@@ -183,15 +215,13 @@ fake = Faker()
 
 # endregion
 
-
 app = Flask(__name__)
 
-hardcoded_username = 'admin'
-hardcoded_password = 'admin'
 
 @app.route('/static/<path:path>')
 def send_static(path):
     return send_from_directory('static', path)
+
 
 @app.route('/')
 def index():
@@ -200,12 +230,77 @@ def index():
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html')
+    data = request.json
+    userid = data.get('userid')
+    query_user = "SELECT Username, Firstname, Lastname FROM Users WHERE UserID = %s"
+    query_transaction = """SELECT PaidAmount, BoughtAmount, TransactionDate, MarketName
+        FROM UserTransaction, Market WHERE UserTransaction.UserID = %s
+         AND UserTransaction.MarketID = Market.MarketID"""
+    query_wallet = """SELECT CurrencyCode, Amount FROM WalletCurrency
+        WHERE WalletID IN (SELECT WalletID FROM Wallet WHERE UserID = %s)"""
+
+    cursor.execute(query_user, (userid,))
+    user = cursor.fetchone()
+
+    cursor.execute(query_transaction, (userid,))
+    transaction = cursor.fetchall()
+
+    cursor.execute(query_wallet, (userid,))
+    wallet = cursor.fetchall()
+
+    return jsonify(userinfo=user, transactioninfo=transaction, walletinfo=wallet)
 
 
 @app.route('/trade')
 def trade():
     return render_template('trade_window.html')
+
+
+@app.route('/confirm_trade')
+def confirm_trade():
+    data = request.json
+    userid = data.get('userid')
+    base_currency = data.get('base_currency')
+    target_currency = data.get('target_currency')
+    target_amount = data.get('target_amount')
+
+    # check if user has enough base currency in his wallet
+    query = """SELECT Amount FROM WalletCurrency
+        WHERE WalletID IN (SELECT WalletID FROM Wallet WHERE UserID = %s)
+        AND CurrencyCode = %s"""
+    cursor.execute(query, (userid, base_currency))
+    fetch = cursor.fetchone()
+    base_amount = fetch[0]
+
+    query = """SELECT ExchangeAmount FROM Market
+        WHERE BaseCurrencyCode = %s AND TargetCurrencyCode = %s"""
+    cursor.execute(query, (base_currency, target_currency))
+    fetch = cursor.fetchone()
+    exchange_amount = fetch[0]
+
+    if base_amount >= target_amount * exchange_amount:
+        # update user wallet
+        query = """UPDATE WalletCurrency SET Amount = Amount - %s
+            WHERE WalletID IN (SELECT WalletID FROM Wallet WHERE UserID = %s)
+            AND CurrencyCode = %s"""
+        cursor.execute(query, (target_amount * exchange_amount, userid, base_currency))
+        root_db.commit()
+
+        query = """UPDATE WalletCurrency SET Amount = Amount + %s
+            WHERE WalletID IN (SELECT WalletID FROM Wallet WHERE UserID = %s)
+            AND CurrencyCode = %s"""
+        cursor.execute(query, (target_amount, userid, target_currency))
+        root_db.commit()
+
+        # add transaction to user transaction history
+        query = """INSERT INTO UserTransaction (UserID, MarketID, PaidAmount, BoughtAmount, TransactionDate)
+            VALUES (%s, (SELECT MarketID FROM Market WHERE BaseCurrencyCode = %s AND TargetCurrencyCode = %s), %s, %s, %s)"""
+        cursor.execute(query, (
+        userid, base_currency, target_currency, target_amount * exchange_amount, target_amount, datetime.now()))
+        root_db.commit()
+
+        return jsonify(success=True)
+
 
 @app.route('/signup')
 def signup():
@@ -222,17 +317,16 @@ def forgot_password():
     return render_template('forgot_password.html')
 
 
-@app.route('/process_recovery', methods=['POST'])
-def process_recovery():
-    data = request.json
-    email = data.get('email')
-
-    # Add logic to send recovery email
-    # For demonstration purposes, let's assume the email is sent successfully
-    # In a real application, you would send an email with a unique link for password reset
-
-    return jsonify(success=True)
-
+# @app.route('/process_recovery', methods=['POST'])
+# def process_recovery():
+#     data = request.json
+#     email = data.get('email')
+#
+#     # Add logic to send recovery email
+#     # For demonstration purposes, let's assume the email is sent successfully
+#     # In a real application, you would send an email with a unique link for password reset
+#
+#     return jsonify(success=True)
 
 @app.route('/authenticate', methods=['POST'])
 def authenticate():
@@ -240,12 +334,15 @@ def authenticate():
     entered_username = data.get('username')
     entered_password = data.get('password')
 
-    # Check if the entered username and password match the hardcoded values
-    if entered_username == hardcoded_username and entered_password == hardcoded_password:
-        return jsonify(success=True)
+    if entered_username in admins.keys() and entered_password == admins[entered_username]:
+        return jsonify(success=True, role=entered_username)
     else:
-        return jsonify(success=False)
-    
+        query = """SELECT UserID FROM Users WHERE Username = %s"""
+        cursor.execute(query, (entered_username,))
+        fetch = cursor.fetchall()
+        if fetch:
+            return jsonify(success=True, role='user')
+
 
 @app.route('/get_user_profile_data')
 def get_user_profile_data():
@@ -272,11 +369,11 @@ def get_assets_data():
 @app.route('/cancel_trade', methods=['POST'])
 def cancel_trade():
     # Implement logic to cancel the trade (if needed)
-    
+
     # For now, let's assume the trade was canceled successfully
     # Replace this with your actual cancellation logic
     success = True
-    
+
     return jsonify({'success': success})
 
 
@@ -309,20 +406,21 @@ def submit_purchase():
         }
 
         # Assuming you have a global list 'transaction_history' to store transaction data
-        transaction_history.append(new_transaction)
+        # transaction_history.append(new_transaction)
 
         # Return a success response
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
-    
+
 
 @app.route('/get_transaction_history_data')
 def get_transaction_history_data():
     # Replace this with your actual logic to fetch transaction history data from the server
     transaction_history_data = [
         {'transaction': 'USD', 'amount': 200, 'status': 'buy', 'total': 1200, 'date': '2022-03-01', 'time': '14:30'},
-        {'transaction': 'IRR', 'amount': 100000000, 'status': 'sell', 'total': 1100, 'date': '2022-03-02', 'time': '10:45'},
+        {'transaction': 'IRR', 'amount': 100000000, 'status': 'sell', 'total': 1100, 'date': '2022-03-02',
+         'time': '10:45'},
         # Add more transaction history entries as needed
     ]
     return jsonify(transaction_history_data)
@@ -346,7 +444,7 @@ def edit_profile():
         return jsonify({'success': True, 'message': 'Profile updated successfully'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
-    
+
 
 # region default queries
 
@@ -398,8 +496,9 @@ def get_top_5_users_with_most_exchanged_amount_in_market_in_year(marketID, year)
     return {'data': fetch}
 
 
-@app.route('/get_avg_count_currency_transaction_amount_in_date_range/<string:firstCurrencyCode>/<string:secondCurrencyCode>'
-           '/<string:startDate>/<string:endDate>')
+@app.route(
+    '/get_avg_count_currency_transaction_amount_in_date_range/<string:firstCurrencyCode>/<string:secondCurrencyCode>'
+    '/<string:startDate>/<string:endDate>')
 def get_avg_count_currency_transaction_amount_in_date_range(firstCurrencyCode, secondCurrencyCode, startDate, endDate):
     query = """SELECT AVG(BoughtAmount) AS AvgAmount, COUNT(*) AS TransactionCount
     FROM UserTransaction, Market
@@ -411,6 +510,7 @@ def get_avg_count_currency_transaction_amount_in_date_range(firstCurrencyCode, s
     cursor.execute(query, (secondCurrencyCode, firstCurrencyCode, startDate, endDate))
     fetch2 = cursor.fetchall()
     return {firstCurrencyCode + '/' + secondCurrencyCode: fetch1, secondCurrencyCode + '/' + firstCurrencyCode: fetch2}
+
 
 # endregion
 
