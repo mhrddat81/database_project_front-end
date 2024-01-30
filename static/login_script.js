@@ -1,15 +1,33 @@
 function login() {
-    // Simple login logic
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
 
-    // You can replace this with your actual authentication logic
-    if (username === 'demo' && password === 'password') {
-        window.location.href = 'dashboard.html';
-    } else if (username === null || password === null) {
-        alert('Invalid username or password. Please try again.');
-    }
-    
+    // Prepare data to send in the AJAX request
+    var requestData = {
+        username: username,
+        password: password
+    };
+
+    // Make an AJAX request to the Flask server
+    $.ajax({
+        type: 'POST',
+        url: '/authenticate',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify(requestData),
+        success: function(response) {
+            if (response.success) {
+                // Authentication success, redirect to the dashboard
+                window.location.href = 'dashboard.html';
+            } else {
+                // Authentication failed, show an alert or handle accordingly
+                alert('Authentication failed. Invalid username or password.');
+            }
+        },
+        error: function(error) {
+            // Handle any error that occurs during the AJAX request
+            console.error('Error during authentication:', error.responseText);
+        }
+    });
 }
 
 function goToForgotPassword() {

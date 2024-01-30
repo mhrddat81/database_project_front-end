@@ -238,6 +238,7 @@ def authenticate():
     entered_username = data.get('username')
     entered_password = data.get('password')
 
+    # Check if the entered username and password match the hardcoded values
     if entered_username == hardcoded_username and entered_password == hardcoded_password:
         return jsonify(success=True)
     else:
