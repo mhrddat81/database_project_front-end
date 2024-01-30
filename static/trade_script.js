@@ -87,23 +87,78 @@ function handleRowChange(row) {
 
 // Function to handle trade cancellation
 function cancelTrade() {
-    // Implement logic for cancelling the trade and redirecting to the dashboard
-    window.location.href = 'dashboard.html';
+    // Send an AJAX request to cancel the trade
+    fetch('/cancel_trade', {
+        method: 'POST',
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Check if the trade was canceled successfully
+        if (data.success) {
+            // Redirect to the dashboard
+            window.location.href = '/dashboard';
+        } else {
+            // Handle any errors or show a message to the user
+            console.error('Failed to cancel the trade:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error during cancel trade request:', error);
+    });
 }
 
 // Function to handle trade button click
 function submitPurchase() {
-    // Implement logic for submitting the purchase and updating the wallet amount
-    // ...
+    // Gather data from the form
+    var selectedCurrency = document.querySelector('.currency-select').value;
+    var transactionType = document.getElementById('buySellSelect').value;
+    var transactionAmount = parseFloat(document.querySelector('.amount-input').value);
 
-    // Update wallet amount after the trade (replace with actual data fetching logic)
-    updateWalletAmount();
+    // Send an AJAX request to submit the purchase
+    fetch('/submit_purchase', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            currency: selectedCurrency,
+            amount: transactionAmount,
+            type: transactionType,
+            total: total,
+            date: current_date,
+            time: current_time
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Check if the purchase was submitted successfully
+        if (data.success) {
+            // Redirect to the dashboard
+            window.location.href = '/dashboard';
+        } else {
+            // Handle any errors or show a message to the user
+            console.error('Failed to submit purchase:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error during submit purchase request:', error);
+    });
+}
 
-    // Update transaction history in the dashboard window
-    updateTransactionHistory();
+function updateTransactionHistoryTable(transaction) {
+    var transactionHistoryTableBody = document.getElementById('transactionHistoryTableBody');
 
-    // Show a success message or handle the result accordingly
-    alert('Purchase submitted successfully!');
+    var newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td>${transaction.transaction}</td>
+        <td>${transaction.amount}</td>
+        <td>${transaction.status}</td>
+        <td>${transaction.total}</td>
+        <td>${transaction.date}</td>
+        <td>${transaction.time}</td>
+    `;
+
+    transactionHistoryTableBody.insertBefore(newRow, transactionHistoryTableBody.firstChild);
 }
 
 // Execute functions when the document is ready
@@ -120,4 +175,11 @@ document.addEventListener("DOMContentLoaded", function () {
             handleRowChange(row);
         }
     });
+
+    // Add event listeners for buttons
+    var addRowBtn = document.getElementById('addRowBtn');
+    addRowBtn.addEventListener('click', addRow);
+
+    var submitPurchaseBtn = document.getElementById('submitPurchaseBtn');
+    submitPurchaseBtn.addEventListener('click', submitPurchase);
 });

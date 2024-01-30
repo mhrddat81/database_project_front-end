@@ -203,11 +203,9 @@ def dashboard():
     return render_template('dashboard.html')
 
 
-
-@app.route('/trade_window')
-def trade_window():
+@app.route('/trade')
+def trade():
     return render_template('trade_window.html')
-
 
 @app.route('/signup')
 def signup():
@@ -270,6 +268,53 @@ def get_assets_data():
     ]
     return jsonify(assets_data)
 
+
+@app.route('/cancel_trade', methods=['POST'])
+def cancel_trade():
+    # Implement logic to cancel the trade (if needed)
+    
+    # For now, let's assume the trade was canceled successfully
+    # Replace this with your actual cancellation logic
+    success = True
+    
+    return jsonify({'success': success})
+
+@app.route('/submit_purchase', methods=['POST'])
+def submit_purchase():
+    try:
+        # Get data from the request
+        data = request.get_json()
+        currency = data['currency']
+        amount = data['amount']
+        transaction_type = data['type']
+
+        # Get current date and time
+        current_date = datetime.datetime.now().strftime('%Y-%m-%d')
+        current_time = datetime.datetime.now().strftime('%H:%M:%S')
+
+        # Calculate the total based on your logic (replace this with your actual price)
+        # For simplicity, let's assume a fixed price for each transaction
+        price_per_unit = 1.5  # Replace with your actual price
+        total = price_per_unit * amount
+
+        # Create a new transaction entry
+        new_transaction = {
+            'transaction': currency,
+            'amount': amount,
+            'status': transaction_type,
+            'total': total,
+            'date': current_date,
+            'time': current_time
+        }
+
+        # Assuming you have a global list 'transaction_history' to store transaction data
+        transaction_history.append(new_transaction)
+
+        # Return a success response
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+    
 
 @app.route('/get_transaction_history_data')
 def get_transaction_history_data():

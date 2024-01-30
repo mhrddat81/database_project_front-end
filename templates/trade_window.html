@@ -46,19 +46,19 @@
     </table>
 
     <!-- Add Row Button -->
-    <button type="button" class="btn btn-success" onclick="addRow()">Add</button>
+    <button type="button" class="btn btn-success" id="addRowBtn">Add</button>
 
     <!-- Cancel Button -->
     <button type="button" class="btn btn-secondary ml-2" onclick="cancelTrade()">Cancel</button>
 
     <!-- Submit Purchase Button -->
-    <button type="button" class="btn btn-primary ml-auto" onclick="submitPurchase()">Submit Purchase</button>
+    <button type="button" class="btn btn-primary ml-auto" id="submitPurchaseBtn">Submit Purchase</button>
 </div>
 
 <!-- Include Bootstrap JS and jQuery -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="trade_script.js"></script>
+<script src="{{ url_for('static', filename='trade_script.js') }}"></script>
 </body>
 </html>
