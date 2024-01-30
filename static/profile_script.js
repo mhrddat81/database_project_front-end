@@ -20,30 +20,22 @@ function cancelChanges() {
 
 // Function to handle submit button click
 function submitChanges() {
-    
-    var firstName = document.getElementById('firstName').value;
-    var lastName = document.getElementById('lastName').value;
-    var email = document.getElementById('email').value;
-    var phoneNumber = document.getElementById('phoneNumber').value;
-    var dob = document.getElementById('dob').value;
+    var formData = new FormData(document.getElementById('editProfileForm'));
 
-    // Validate phone number format
-    if (!isValidPhoneNumber(phoneNumber)) {
-        alert('Invalid phone number format!');
-        return;
-    }
-
-    // Validate email format
-    if (!isValidEmail(email)) {
-        alert('Invalid email format!');
-        return;
-    }
-
-    // Add additional validation for other fields as needed
-
-    // Implement logic to submit changes to the database
-    // ...
-
-    // Show the updated information
-    alert('Changes submitted successfully!');
+    // Use fetch API to send the form data to the Flask route
+    fetch('/edit_profile', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Handle success (e.g., show a success message)
+            alert(data.message);
+        } else {
+            // Handle failure (e.g., show an error message)
+            alert('Failed to update profile: ' + data.error);
+        }
+    })
+    .catch(error => console.error('Error submitting changes:', error));
 }

@@ -279,6 +279,7 @@ def cancel_trade():
     
     return jsonify({'success': success})
 
+
 @app.route('/submit_purchase', methods=['POST'])
 def submit_purchase():
     try:
@@ -325,6 +326,28 @@ def get_transaction_history_data():
         # Add more transaction history entries as needed
     ]
     return jsonify(transaction_history_data)
+
+
+@app.route('/edit_profile', methods=['POST'])
+def edit_profile():
+    try:
+        # Get form data from the request
+        data = request.form
+        profile_image = request.files['profileImage']  # Handle file upload if needed
+        first_name = data['firstName']
+        last_name = data['lastName']
+        email = data['email']
+        phone_number = data['phoneNumber']
+        dob = data['dob']
+
+        # Implement logic to update the user's profile (replace this with your logic)
+        # ...
+
+        return jsonify({'success': True, 'message': 'Profile updated successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+    
+
 # region default queries
 
 
