@@ -4,13 +4,13 @@ import mysql.connector
 from faker import Faker
 from datetime import datetime
 
-database_name = "exchangeManagement"
+database_name = "project"
 admins = {"admin": "admin123", "report": "report123", "usermanager": "usermanager123"}
 
 root_db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="ُشمشیثناهغشق1382",
+    password="admin",
     database=database_name
 )
 
@@ -228,27 +228,30 @@ def index():
     return render_template('login.html')
 
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
-    data = request.json
-    userid = data.get('userid')
-    query_user = "SELECT Username, Firstname, Lastname FROM Users WHERE UserID = %s"
-    query_transaction = """SELECT PaidAmount, BoughtAmount, TransactionDate, MarketName
-        FROM UserTransaction, Market WHERE UserTransaction.UserID = %s
-         AND UserTransaction.MarketID = Market.MarketID"""
-    query_wallet = """SELECT CurrencyCode, Amount FROM WalletCurrency
-        WHERE WalletID IN (SELECT WalletID FROM Wallet WHERE UserID = %s)"""
+    if request.method == 'POST':
+        data = request.json
+        userid = data.get('userid')
 
-    cursor.execute(query_user, (userid,))
-    user = cursor.fetchone()
+        # Fetch user information
+        user_query = "SELECT Username, FirstName, LastName FROM Users WHERE UserID = %s"
+        cursor.execute(user_query, (userid,))
+        user_info = cursor.fetchone()
 
-    cursor.execute(query_transaction, (userid,))
-    transaction = cursor.fetchall()
+        # Fetch user transaction history
+        transaction_query = """SELECT PaidAmount, BoughtAmount, TransactionDate, MarketName
+            FROM UserTransaction, Market WHERE UserTransaction.UserID = %s
+            AND UserTransaction.MarketID = Market.MarketID"""
+        cursor.execute(transaction_query, (userid,))
+        transaction_history = cursor.fetchall()
 
-    cursor.execute(query_wallet, (userid,))
-    wallet = cursor.fetchall()
-
-    return jsonify(userinfo=user, transactioninfo=transaction, walletinfo=wallet)
+        return jsonify(userinfo=user_info, transactioninfo=transaction_history)
+    else:
+        # Handle the case when it's a regular GET request
+        # Render the page with a placeholder user ID for demonstration purposes
+        # You might want to adjust this based on your authentication logic
+        return render_template('dashboard.html', userid='placeholder_user_id')
 
 
 @app.route('/trade')
