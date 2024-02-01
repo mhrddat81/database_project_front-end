@@ -46,4 +46,15 @@ document.addEventListener("DOMContentLoaded", function() {
             transactionHistoryTableBody.appendChild(row);
         });
     }
+
+    function displayUserProfile(userData) {
+        var profileName = document.querySelector('.profile h4');
+        var profilePic = document.querySelector('.profile img');
+    
+        // Update profile information in the right column
+        profileName.textContent = userData.firstName + ' ' + userData.lastName;
+        profilePic.src = userData.profilePic;
+    
+        // You can add more logic here to update additional profile information
+    }
 });
