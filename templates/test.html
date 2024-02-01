@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <style>
+        /* Add your custom styles here */
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">User Dashboard</h1>
+
+        <div id="user-info" class="mb-4"></div>
+        <div id="transaction-info" class="mb-4"></div>
+        <div id="wallet-info" class="mb-4"></div>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Fetch user data
+            fetch('/dashboard', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const userInfo = document.getElementById('user-info');
+                const transactionInfo = document.getElementById('transaction-info');
+                const walletInfo = document.getElementById('wallet-info');
+
+                // Display user information
+                userInfo.innerHTML = `<div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">User Information</h5>
+                                            <p class="card-text"><strong>Username:</strong> ${data.userinfo.Username}</p>
+                                            <p class="card-text"><strong>First Name:</strong> ${data.userinfo.Firstname}</p>
+                                            <p class="card-text"><strong>Last Name:</strong> ${data.userinfo.Lastname}</p>
+                                        </div>
+                                    </div>`;
+
+                // Display transaction information
+                transactionInfo.innerHTML = `<div class="card">
+                                             <div class="card-body">
+                                                 <h5 class="card-title">Transaction Information</h5>`;
+                data.transactioninfo.forEach(transaction => {
+                    transactionInfo.innerHTML += `<p class="card-text"><strong>Paid Amount:</strong> ${transaction.PaidAmount}</p>
+                                                 <p class="card-text"><strong>Bought Amount:</strong> ${transaction.BoughtAmount}</p>
+                                                 <p class="card-text"><strong>Transaction Date:</strong> ${transaction.TransactionDate}</p>
+                                                 <p class="card-text"><strong>Market Name:</strong> ${transaction.MarketName}</p>
+                                                 <hr>`;
+                });
+                transactionInfo.innerHTML += `</div></div>`;
+
+                // Display wallet information
+                walletInfo.innerHTML = `<div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Wallet Information</h5>`;
+                data.walletinfo.forEach(wallet => {
+                    walletInfo.innerHTML += `<p class="card-text"><strong>Currency Code:</strong> ${wallet.CurrencyCode}</p>
+                                             <p class="card-text"><strong>Amount:</strong> ${wallet.Amount}</p>
+                                             <hr>`;
+                });
+                walletInfo.innerHTML += `</div></div>`;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
