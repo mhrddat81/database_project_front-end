@@ -239,20 +239,20 @@ def dashboard():
         cursor.execute(user_query, (userid,))
         user_info = cursor.fetchone()
 
-        # Fetch user transaction history
-        transaction_query = """SELECT PaidAmount, BoughtAmount, TransactionDate, MarketName
-            FROM UserTransaction, Market WHERE UserTransaction.UserID = %s
-            AND UserTransaction.MarketID = Market.MarketID"""
-        cursor.execute(transaction_query, (userid,))
-        transaction_history = cursor.fetchall()
+        # Fetch user wallet balances
+        wallet_query = """SELECT wc.CurrencyCode, wc.Amount
+                          FROM WalletCurrency wc
+                          INNER JOIN Wallet w ON wc.WalletID = w.WalletID
+                          WHERE w.UserID = %s"""
+        cursor.execute(wallet_query, (userid,))
+        wallet_balances = cursor.fetchall()
 
-        return jsonify(userinfo=user_info, transactioninfo=transaction_history)
+        return jsonify(userinfo=user_info, wallet_balances=wallet_balances)
     else:
         # Handle the case when it's a regular GET request
         # Render the page with a placeholder user ID for demonstration purposes
         # You might want to adjust this based on your authentication logic
         return render_template('dashboard.html', userid='placeholder_user_id')
-
 
 @app.route('/trade')
 def trade():

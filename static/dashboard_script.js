@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function() {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userid: 'your_user_id_here' }), // Replace with the actual user ID
+        body: JSON.stringify({ userid: getId() }), 
     })
         .then(response => response.json())
         .then(data => {
@@ -16,7 +16,42 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .catch(error => console.error('Error fetching dashboard data:', error));
 
-    // ... (other code)
+   
+    function fetchUserData(userid) {
+        fetch('/dashboard', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userid: userid }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            const { userinfo, transactioninfo } = data;
+    
+            // Update user profile data
+            document.getElementById('user-name').innerText = `${userinfo.FirstName} ${userinfo.LastName}`;
+            document.getElementById('profile-pic').src = `static/${userinfo.Username}_profile_pic.jpg`;
+    
+            // Update wallet currencies
+            const walletCurrencies = document.getElementById('wallet-currencies');
+            walletCurrencies.innerHTML = "";  // Clear existing content
+    
+            transactioninfo.forEach(transaction => {
+                const currencyCode = transaction.CurrencyCode;
+                const amount = transaction.Amount;
+    
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item';
+                listItem.textContent = `${currencyCode}: ${amount}`;
+    
+                walletCurrencies.appendChild(listItem);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching user data:', error);
+        });
+    }
 
     function displayUserProfile(userData) {
         var profileName = document.querySelector('.profile h4');
@@ -33,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function() {
         var transactionHistoryTableBody = document.querySelector('#transactionHistoryTableBody');
         // Clear existing rows
         transactionHistoryTableBody.innerHTML = '';
-
+    
         // Create and append transaction history rows dynamically
         transactionHistoryData.forEach(function(transaction) {
             var row = document.createElement('tr');
@@ -57,4 +92,13 @@ document.addEventListener("DOMContentLoaded", function() {
     
         // You can add more logic here to update additional profile information
     }
+
+    function getId() {
+        return Math.floor(Math.random() * 900) + 1;  
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const userId = getUserIdFromSomehow(); 
+    fetchUserData(userId);
 });

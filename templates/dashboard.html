@@ -16,7 +16,7 @@
             <!-- Menu Bar -->
             <div class="col-md-2 sidebar">
                 <div class="logo-container">
-                    <img src="logo.png" alt="Logo" class="img-fluid logo" style="padding: 20px;">
+                    <img src="static/logo.png" alt="Logo" class="img-fluid logo" style="padding: 20px;">
                 </div>
                 <ul class="nav flex-column">
                     <li class="nav-item">
@@ -60,39 +60,39 @@
                 </div>           
             
                 <!-- Lower Row: Transaction History Table -->
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Transaction</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Total</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionHistoryTableBody">
-                        <!-- Rows will be dynamically added here -->
-                    </tbody>
-                </table>
+                <div class="transaction-history">
+                    <h3>Transaction History</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Transaction</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionHistoryTableBody">
+                            <!-- Rows will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
             
 
             <!-- Right Column -->
             <div class="col-md-3 sidebar">
                 <div class="profile text-center mb-4">
-                    <img src="profile-pic.jpg" alt="Profile Picture" class="img-fluid rounded-circle profile-pic">
+                    <img src="static/profile.png" alt="Profile Picture" class="img-fluid rounded-circle profile-pic" id="profile-pic">
                     <h4 class="user-name mt-2" id="user-name">User Name</h4>
                     <a href="{{ url_for('profile') }}" class="edit-profile">Edit Profile</a>
                 </div>
             
                 <div class="wallet-currencies mb-4">
                     <h5 class="mb-3">Currencies</h5>
-                    <ul class="list-group">
-                        <li class="list-group-item">Currency 1</li>
-                        <li class="list-group-item">Currency 2</li>
-                        <li class="list-group-item">Currency 3</li>
-                        <!-- Add more currencies as needed -->
+                    <ul class="list-group" id="wallet-currencies">
+                        <!-- Wallet currencies will be dynamically added here -->
                     </ul>
                 </div>
             
