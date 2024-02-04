@@ -4,16 +4,15 @@ import mysql.connector
 from faker import Faker
 from datetime import datetime
 
-database_name = "project"
+database_name = "exchangeManagement"
 admins = {"admin": "admin123", "report": "report123", "usermanager": "usermanager123"}
 
 root_db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="admin",
+    password="ُشمشیثناهغشق1382",
     database=database_name
 )
-
 cursor = root_db.cursor()
 
 # region user creation queries
@@ -36,8 +35,7 @@ cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
 # region Tables Creation
 
 cursor.execute("""CREATE TABLE IF NOT EXISTS Users(
-    UserID bigint NOT NULL PRIMARY KEY,
-    Username char(30) NOT NULL UNIQUE,
+    Username char(30) NOT NULL PRIMARY KEY,
     UserPassword char(30) NOT NULL,
     FirstName char(30),
     LastName char(30),
@@ -46,10 +44,10 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS Users(
 
 cursor.execute("""CREATE TABLE IF NOT EXISTS Wallet(
     WalletID bigint NOT NULL PRIMARY KEY,
-    UserID bigint NOT NULL,
+    Username char(30) NOT NULL,
 
-    FOREIGN KEY(UserID)
-    REFERENCES Users(UserID)
+    FOREIGN KEY(Username)
+    REFERENCES Users(Username)
     ON DELETE CASCADE
     ON UPDATE CASCADE)""")
 
@@ -93,14 +91,14 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS Market(
 
 cursor.execute("""CREATE TABLE IF NOT EXISTS UserTransaction(
     TranscationID bigint NOT NULL PRIMARY KEY,
-    UserID bigint,
-    MarketID bigint,
+    Username char(30) NOT NULL,
+    MarketID bigint NOT NULL,
     PaidAmount float NOT NULL,
     BoughtAmount float NOT NULL,
     TransactionDate datetime,
     
-    FOREIGN KEY(UserID)
-    REFERENCES Users(UserID)
+    FOREIGN KEY(Username)
+    REFERENCES Users(Username)
     ON DELETE SET NULL
     ON UPDATE CASCADE,
     
@@ -117,16 +115,16 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS UserTransaction(
 
 fake = Faker()
 
-# for userID in range(1, 1000):
+# for username in range(1, 1000):
 #     query = """UPDATE Users SET Username = %s WHERE UserID = %s"""
 #     username = fake.user_name()
 #
-#     cursor.execute("""SELECT UserID FROM Users WHERE Username = %s""", (username,))
+#     cursor.execute("""SELECT Username FROM Users WHERE Username = %s""", (username,))
 #
 #     if cursor.fetchall():
 #         while cursor.fetchall():
 #             username = fake.user_name()
-#             cursor.execute("""SELECT UserID FROM Users WHERE Username = %s""", (username,))
+#             cursor.execute("""SELECT Username FROM Users WHERE Username = %s""", (username,))
 #
 #     val = (username, userID)
 #     cursor.execute(query, val)
@@ -218,6 +216,7 @@ fake = Faker()
 app = Flask(__name__)
 
 
+# region unused
 @app.route('/static/<path:path>')
 def send_static(path):
     return send_from_directory('static', path)
@@ -254,9 +253,10 @@ def dashboard():
         # You might want to adjust this based on your authentication logic
         return render_template('dashboard.html', userid='placeholder_user_id')
 
-@app.route('/trade')
-def trade():
-    return render_template('trade_window.html')
+
+# @app.route('/trade')
+# def trade():
+#     return render_template('trade_window.html')
 
 
 @app.route('/confirm_trade')
@@ -299,7 +299,7 @@ def confirm_trade():
         query = """INSERT INTO UserTransaction (UserID, MarketID, PaidAmount, BoughtAmount, TransactionDate)
             VALUES (%s, (SELECT MarketID FROM Market WHERE BaseCurrencyCode = %s AND TargetCurrencyCode = %s), %s, %s, %s)"""
         cursor.execute(query, (
-        userid, base_currency, target_currency, target_amount * exchange_amount, target_amount, datetime.now()))
+            userid, base_currency, target_currency, target_amount * exchange_amount, target_amount, datetime.now()))
         root_db.commit()
 
         return jsonify(success=True)
@@ -320,17 +320,6 @@ def forgot_password():
     return render_template('forgot_password.html')
 
 
-# @app.route('/process_recovery', methods=['POST'])
-# def process_recovery():
-#     data = request.json
-#     email = data.get('email')
-#
-#     # Add logic to send recovery email
-#     # For demonstration purposes, let's assume the email is sent successfully
-#     # In a real application, you would send an email with a unique link for password reset
-#
-#     return jsonify(success=True)
-
 @app.route('/authenticate', methods=['POST'])
 def authenticate():
     data = request.json
@@ -345,17 +334,6 @@ def authenticate():
         fetch = cursor.fetchall()
         if fetch:
             return jsonify(success=True, role='user')
-
-
-@app.route('/get_user_profile_data')
-def get_user_profile_data():
-    # Replace this with your actual logic to fetch user profile data from the server
-    user_profile_data = {
-        'name': 'John Doe',
-        'profilePic': 'profile-pic.jpg',
-        # Add more profile data as needed
-    }
-    return jsonify(user_profile_data)
 
 
 @app.route('/get_assets_data')
@@ -449,30 +427,102 @@ def edit_profile():
         return jsonify({'success': False, 'error': str(e)})
 
 
-# region default queries
+# endregion
 
 
-@app.route('/get_user_wallet_balances/<int:userID>')
-def get_user_wallet_balances(userID):
-    query = """SELECT CurrencyCode, Amount FROM WalletCurrency
-    WHERE WalletID IN (SELECT WalletID FROM Wallet WHERE UserID = %s)"""
-    cursor.execute(query, (userID,))
+# region user queries
+
+@app.route('/get_user_profile/<string:username>')
+def get_user_profile_data(username):
+    query = """SELECT Username, Firstname, Lastname, Email, Address FROM Users WHERE Username = %s"""
+    cursor.execute(query, (username,))
     fetch = cursor.fetchall()
-    return {'data': fetch}
+    headings = ['Username', 'FirstName', 'LastName', 'Email', 'Address']
+    return render_template('table.html', headings=headings, data=fetch)
 
 
+@app.route('/get_user_wallet/<string:username>')
+def get_user_wallet(username):
+    query = """SELECT WalletID FROM Wallet WHERE Username = %s"""
+    cursor.execute(query, (username,))
+    walletId = cursor.fetchone()[0]
+    query = """SELECT CurrencyCode, Amount FROM WalletCurrency WHERE WalletID = %s"""
+    cursor.execute(query, (walletId,))
+    fetch = cursor.fetchall()
+    headings = ['CurrencyCode', 'Amount']
+    return render_template('table.html', headings=headings, data=fetch)
+
+
+@app.route('/get_user_transactions/<string:username>')
+def get_user_transactions(username):
+    query = """SELECT TransactionID, MarketName, PaidAmount, BoughtAmount, TransactionDate
+    FROM UserTransaction, Market WHERE Username = %s AND UserTransaction.MarketID = Market.MarketID"""
+    cursor.execute(query, (username,))
+    fetch = cursor.fetchall()
+    headings = ['TransactionID', 'MarketName', 'PaidAmount', 'BoughtAmount', 'TransactionDate']
+    return render_template('table.html', headings=headings, data=fetch)
+
+
+@app.route('/trade/<string:username>/<string:baseCurrency>/<string:targetCurrency>/<float:amount>')
+def trade(username, baseCurrency, targetCurrency, amount):
+    query = """SELECT Amount FROM WalletCurrency, Wallet
+    WHERE WalletCurrency.WalletID = Wallet.WalletID AND Wallet.Username = %s AND CurrencyCode = %s"""
+    cursor.execute(query, (username, baseCurrency))
+
+    fetch = cursor.fetchone()
+    if fetch is None:
+        return "Trade Failed! Insufficient Balance"
+
+    baseBalance = fetch[0]
+
+    query = """SELECT ExchangeAmount FROM Market WHERE BaseCurrencyCode = %s AND TargetCurrencyCode = %s"""
+    cursor.execute(query, (baseCurrency, targetCurrency))
+    exchangeAmount = cursor.fetchone()[0]
+
+    if baseBalance >= amount * exchangeAmount:
+        query = """UPDATE WalletCurrency, Wallet
+        SET Amount = Amount - %s
+        WHERE WalletCurrency.WalletID = Wallet.WalletID AND Wallet.Username = %s AND CurrencyCode = %s"""
+        cursor.execute(query, (amount * exchangeAmount, username, baseCurrency))
+
+        # If the target currency is not in the user's wallet, add it otherwise update the amount
+        query = """INSERT INTO WalletCurrency (WalletID, CurrencyCode, Amount)
+        VALUES ((SELECT WalletID FROM Wallet WHERE Username = %s), %s, %s)
+        ON DUPLICATE KEY UPDATE Amount = Amount + %s"""
+        cursor.execute(query, (username, targetCurrency, amount, amount))
+
+        query = """INSERT INTO UserTransaction (Username, MarketID, PaidAmount, BoughtAmount, TransactionDate)
+        VALUES (%s, (SELECT MarketID FROM Market WHERE BaseCurrencyCode = %s AND TargetCurrencyCode = %s), %s, %s, %s)"""
+        cursor.execute(query, (username, baseCurrency, targetCurrency, amount * exchangeAmount, amount, datetime.now()))
+
+        root_db.commit()
+        return "Trade Successful!"
+    else:
+        return "Trade Failed! Insufficient Balance"
+
+
+# endregion
+
+
+# region default queries
 @app.route('/get_currency_transactions_in_date_range/<string:firstCurrencyCode>/<string:secondCurrencyCode>/<string'
            ':startDate>/<string:endDate>')
 def get_currency_transactions_in_date_range(firstCurrencyCode, secondCurrencyCode, startDate, endDate):
-    query = """SELECT TransactionID, Users.* FROM UserTransaction, Users
-    WHERE MarketID IN (SELECT MarketID FROM Market WHERE BaseCurrencyCode = %s AND TargetCurrencyCode = %s)
+    query = """SELECT UserTransaction.Username, FirstName, Lastname, TransactionID, MarketName,
+     PaidAmount, BoughtAmount, TransactionDate
+    FROM UserTransaction, Users, Market
+    WHERE UserTransaction.MarketID IN (SELECT MarketID FROM Market
+    WHERE (BaseCurrencyCode = %s AND TargetCurrencyCode = %s) OR (BaseCurrencyCode = %s AND TargetCurrencyCode = %s))
     AND TransactionDate BETWEEN %s AND %s
-    AND UserTransaction.UserID = Users.UserID"""
-    cursor.execute(query, (firstCurrencyCode, secondCurrencyCode, startDate, endDate))
-    fetch1 = cursor.fetchall()
-    cursor.execute(query, (secondCurrencyCode, firstCurrencyCode, startDate, endDate))
-    fetch2 = cursor.fetchall()
-    return {'data': fetch1 + fetch2}
+    AND UserTransaction.Username = Users.Username
+    AND UserTransaction.MarketID = Market.MarketID
+    ORDER BY TransactionDate DESC"""
+    cursor.execute(query, (firstCurrencyCode, secondCurrencyCode, secondCurrencyCode, firstCurrencyCode,
+                           startDate, endDate))
+    fetch = cursor.fetchall()
+    headings = ['Username', 'FirstName', 'LastName', 'TransactionID', 'MarketName',
+                'PaidAmount', 'BoughtAmount', 'TransactionDate']
+    return render_template('table.html', headings=headings, data=fetch)
 
 
 @app.route('/get_transactions_summary_in_month/<string:month>/<string:year>')
@@ -483,20 +533,26 @@ def get_transactions_summary_in_month(month, year):
     GROUP BY TargetCurrencyCode"""
     cursor.execute(query, (month, year))
     fetch = cursor.fetchall()
-    return {'data': fetch}
+
+    headings = ['TargetCurrencyCode', 'TotalAmount', 'TransactionCount']
+    return render_template('table.html', headings=headings, data=fetch)
 
 
-@app.route('/get_top_5_users_with_most_exchanged_amount_in_market_in_year/<string:marketID>/<string:year>')
-def get_top_5_users_with_most_exchanged_amount_in_market_in_year(marketID, year):
-    query = """SELECT Users.*, SUM(BoughtAmount) AS TotalAmount
+@app.route('/get_top_5_users_with_most_exchanged_amount_in_market_in_year/<string:baseCurrencyCode>/'
+           '<string:targetCurrencyCode>/<string:year>')
+def get_top_5_users_with_most_exchanged_amount_in_market_in_year(baseCurrencyCode, targetCurrencyCode, year):
+    query = """SELECT Users.Username, FirstName, LastName, SUM(BoughtAmount) AS TotalAmount
     FROM UserTransaction, Users
-    WHERE MarketID = %s AND YEAR(TransactionDate) = %s AND UserTransaction.UserID = Users.UserID
-    GROUP BY UserTransaction.UserID
+    WHERE UserTransaction.Username = Users.Username AND YEAR(TransactionDate) = %s AND MarketID IN 
+    (SELECT MarketID FROM Market WHERE BaseCurrencyCode = %s AND TargetCurrencyCode = %s)
+    GROUP BY UserTransaction.Username
     ORDER BY TotalAmount DESC
     LIMIT 5"""
-    cursor.execute(query, (marketID, year))
+    cursor.execute(query, (year, baseCurrencyCode, targetCurrencyCode))
     fetch = cursor.fetchall()
-    return {'data': fetch}
+
+    headings = ['Username', 'FirstName', 'LastName', 'TotalAmount']
+    return render_template('table.html', headings=headings, data=fetch)
 
 
 @app.route(
@@ -505,14 +561,15 @@ def get_top_5_users_with_most_exchanged_amount_in_market_in_year(marketID, year)
 def get_avg_count_currency_transaction_amount_in_date_range(firstCurrencyCode, secondCurrencyCode, startDate, endDate):
     query = """SELECT AVG(BoughtAmount) AS AvgAmount, COUNT(*) AS TransactionCount
     FROM UserTransaction, Market
-    WHERE BaseCurrencyCode = %s AND TargetCurrencyCode = %s
-    AND TransactionDate BETWEEN %s AND %s
-    AND UserTransaction.MarketID = Market.MarketID"""
-    cursor.execute(query, (firstCurrencyCode, secondCurrencyCode, startDate, endDate))
-    fetch1 = cursor.fetchall()
-    cursor.execute(query, (secondCurrencyCode, firstCurrencyCode, startDate, endDate))
-    fetch2 = cursor.fetchall()
-    return {firstCurrencyCode + '/' + secondCurrencyCode: fetch1, secondCurrencyCode + '/' + firstCurrencyCode: fetch2}
+    WHERE ((BaseCurrencyCode = %s AND TargetCurrencyCode = %s) OR (BaseCurrencyCode = %s AND TargetCurrencyCode = %s))
+    AND (TransactionDate BETWEEN %s AND %s)
+    AND (UserTransaction.MarketID = Market.MarketID)"""
+    cursor.execute(query, (firstCurrencyCode, secondCurrencyCode, secondCurrencyCode, firstCurrencyCode,
+                           startDate, endDate))
+    fetch = cursor.fetchall()
+
+    headings = ['AvgAmount', 'TransactionCount']
+    return render_template('table.html', headings=headings, data=fetch)
 
 
 # endregion
