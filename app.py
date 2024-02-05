@@ -5,17 +5,23 @@ from faker import Faker
 from datetime import datetime
 
 database_name = "exchangeManagement"
-admins = {"admin": "admin123", "report": "report123", "usermanager": "usermanager123"}
+
+# admins = {"admin": "admin123", "report": "report123", "usermanager": "usermanager123"}
+
+# get database username and password from console
+username = input("Enter your database username: ")
+password = input("Enter your database password: ")
 
 root_db = mysql.connector.connect(
     host="localhost",
-    user="root",
-    password="ُشمشیثناهغشق1382",
+    user=username,
+    password=password,
     database=database_name
 )
 cursor = root_db.cursor()
 
 # region user creation queries
+
 # cursor.execute("""CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY 'admin123'""")
 # cursor.execute(f"""GRANT ALL PRIVILEGES ON {database_name}.* TO 'admin'@'localhost'""")
 #
@@ -24,88 +30,90 @@ cursor = root_db.cursor()
 #
 # cursor.execute("""CREATE USER IF NOT EXISTS 'usermanager'@'localhost' IDENTIFIED BY 'usermanager123'""")
 # cursor.execute(f"""GRANT ALL PRIVILEGES ON {database_name}.users TO 'usermanager'@'localhost'""")
-
+#
 # cursor.execute("""CREATE USER IF NOT EXISTS 'user'@'localhost' IDENTIFIED BY 'user123'""")
 # cursor.execute(f"""GRANT SELECT, INSERT, UPDATE, DELETE ON {database_name}.* TO 'user'@'localhost'""")
 
+# endregion
+
 # region Initial Queries
 
-cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
+# cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
 
 # region Tables Creation
 
-cursor.execute("""CREATE TABLE IF NOT EXISTS Users(
-    Username char(30) NOT NULL PRIMARY KEY,
-    UserPassword char(30) NOT NULL,
-    FirstName char(30),
-    LastName char(30),
-    Address char(100),
-    Email char(40))""")
-
-cursor.execute("""CREATE TABLE IF NOT EXISTS Wallet(
-    WalletID bigint NOT NULL PRIMARY KEY,
-    Username char(30) NOT NULL,
-
-    FOREIGN KEY(Username)
-    REFERENCES Users(Username)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)""")
-
-cursor.execute("""CREATE TABLE IF NOT EXISTS Currency(
-    CurrencyCode char(3) NOT NULL PRIMARY KEY,
-    CurrencyName char(20) NOT NULL)""")
-
-cursor.execute("""CREATE TABLE IF NOT EXISTS WalletCurrency(
-        WalletID bigint NOT NULL,
-        CurrencyCode char(3) NOT NULL,
-        Amount float,
-        
-        PRIMARY KEY(WalletID, CurrencyCode),
-        
-        FOREIGN KEY(WalletID)
-        REFERENCES Wallet(WalletID)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-        
-        FOREIGN KEY(CurrencyCode)
-        REFERENCES Currency(CurrencyCode)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE)""")
-
-cursor.execute("""CREATE TABLE IF NOT EXISTS Market(
-    MarketID bigint NOT NULL PRIMARY KEY,
-    MarketName char(40) NOT NULL,
-    BaseCurrencyCode char(3),
-    TargetCurrencyCode char(3),
-    ExchangeAmount float,
-    
-    FOREIGN KEY(BaseCurrencyCode)
-    REFERENCES Currency(CurrencyCode)
-    ON DELETE SET NULL
-    ON UPDATE CASCADE,
-    
-    FOREIGN KEY(TargetCurrencyCode)
-    REFERENCES Currency(CurrencyCode)
-    ON DELETE SET NULL
-    ON UPDATE CASCADE)""")
-
-cursor.execute("""CREATE TABLE IF NOT EXISTS UserTransaction(
-    TranscationID bigint NOT NULL PRIMARY KEY,
-    Username char(30) NOT NULL,
-    MarketID bigint NOT NULL,
-    PaidAmount float NOT NULL,
-    BoughtAmount float NOT NULL,
-    TransactionDate datetime,
-    
-    FOREIGN KEY(Username)
-    REFERENCES Users(Username)
-    ON DELETE SET NULL
-    ON UPDATE CASCADE,
-    
-    FOREIGN KEY(MarketID)
-    REFERENCES Market(MarketID)
-    ON DELETE SET NULL
-    ON UPDATE CASCADE)""")
+# cursor.execute("""CREATE TABLE IF NOT EXISTS Users(
+#     Username char(30) NOT NULL PRIMARY KEY,
+#     UserPassword char(30) NOT NULL,
+#     FirstName char(30),
+#     LastName char(30),
+#     Address char(100),
+#     Email char(40))""")
+#
+# cursor.execute("""CREATE TABLE IF NOT EXISTS Wallet(
+#     WalletID bigint NOT NULL PRIMARY KEY,
+#     Username char(30) NOT NULL,
+#
+#     FOREIGN KEY(Username)
+#     REFERENCES Users(Username)
+#     ON DELETE CASCADE
+#     ON UPDATE CASCADE)""")
+#
+# cursor.execute("""CREATE TABLE IF NOT EXISTS Currency(
+#     CurrencyCode char(3) NOT NULL PRIMARY KEY,
+#     CurrencyName char(20) NOT NULL)""")
+#
+# cursor.execute("""CREATE TABLE IF NOT EXISTS WalletCurrency(
+#         WalletID bigint NOT NULL,
+#         CurrencyCode char(3) NOT NULL,
+#         Amount float,
+#
+#         PRIMARY KEY(WalletID, CurrencyCode),
+#
+#         FOREIGN KEY(WalletID)
+#         REFERENCES Wallet(WalletID)
+#         ON DELETE CASCADE
+#         ON UPDATE CASCADE,
+#
+#         FOREIGN KEY(CurrencyCode)
+#         REFERENCES Currency(CurrencyCode)
+#         ON DELETE CASCADE
+#         ON UPDATE CASCADE)""")
+#
+# cursor.execute("""CREATE TABLE IF NOT EXISTS Market(
+#     MarketID bigint NOT NULL PRIMARY KEY,
+#     MarketName char(40) NOT NULL,
+#     BaseCurrencyCode char(3),
+#     TargetCurrencyCode char(3),
+#     ExchangeAmount float,
+#
+#     FOREIGN KEY(BaseCurrencyCode)
+#     REFERENCES Currency(CurrencyCode)
+#     ON DELETE SET NULL
+#     ON UPDATE CASCADE,
+#
+#     FOREIGN KEY(TargetCurrencyCode)
+#     REFERENCES Currency(CurrencyCode)
+#     ON DELETE SET NULL
+#     ON UPDATE CASCADE)""")
+#
+# cursor.execute("""CREATE TABLE IF NOT EXISTS UserTransaction(
+#     TranscationID bigint NOT NULL PRIMARY KEY,
+#     Username char(30) NOT NULL,
+#     MarketID bigint NOT NULL,
+#     PaidAmount float NOT NULL,
+#     BoughtAmount float NOT NULL,
+#     TransactionDate datetime,
+#
+#     FOREIGN KEY(Username)
+#     REFERENCES Users(Username)
+#     ON DELETE SET NULL
+#     ON UPDATE CASCADE,
+#
+#     FOREIGN KEY(MarketID)
+#     REFERENCES Market(MarketID)
+#     ON DELETE SET NULL
+#     ON UPDATE CASCADE)""")
 
 # endregion
 
@@ -224,7 +232,12 @@ def send_static(path):
 
 @app.route('/')
 def index():
-    return render_template('login.html')
+    return render_template('main.html')
+
+
+@app.route('/get_user_info')
+def user_profile():
+    return render_template('user_info.html')
 
 
 @app.route('/dashboard', methods=['GET', 'POST'])
@@ -326,14 +339,14 @@ def authenticate():
     entered_username = data.get('username')
     entered_password = data.get('password')
 
-    if entered_username in admins.keys() and entered_password == admins[entered_username]:
-        return jsonify(success=True, role=entered_username)
-    else:
-        query = """SELECT UserID FROM Users WHERE Username = %s"""
-        cursor.execute(query, (entered_username,))
-        fetch = cursor.fetchall()
-        if fetch:
-            return jsonify(success=True, role='user')
+    # if entered_username in admins.keys() and entered_password == admins[entered_username]:
+    #     return jsonify(success=True, role=entered_username)
+    # else:
+    query = """SELECT UserID FROM Users WHERE Username = %s"""
+    cursor.execute(query, (entered_username,))
+    fetch = cursor.fetchall()
+    if fetch:
+        return jsonify(success=True, role='user')
 
 
 @app.route('/get_assets_data')
@@ -463,6 +476,11 @@ def get_user_transactions(username):
     return render_template('table.html', headings=headings, data=fetch)
 
 
+@app.route('/trade')
+def trade_window():
+    return render_template('trade_window.html')
+
+
 @app.route('/trade/<string:username>/<string:baseCurrency>/<string:targetCurrency>/<float:amount>')
 def trade(username, baseCurrency, targetCurrency, amount):
     query = """SELECT Amount FROM WalletCurrency, Wallet
@@ -505,6 +523,12 @@ def trade(username, baseCurrency, targetCurrency, amount):
 
 
 # region default queries
+
+@app.route('/get_currency_transactions_in_date_range')
+def currency_transactions():
+    return render_template('currency_transactions.html')
+
+
 @app.route('/get_currency_transactions_in_date_range/<string:firstCurrencyCode>/<string:secondCurrencyCode>/<string'
            ':startDate>/<string:endDate>')
 def get_currency_transactions_in_date_range(firstCurrencyCode, secondCurrencyCode, startDate, endDate):
@@ -525,6 +549,11 @@ def get_currency_transactions_in_date_range(firstCurrencyCode, secondCurrencyCod
     return render_template('table.html', headings=headings, data=fetch)
 
 
+@app.route('/get_transactions_summary_in_month')
+def transactions_summary():
+    return render_template('transactions_summary.html')
+
+
 @app.route('/get_transactions_summary_in_month/<string:month>/<string:year>')
 def get_transactions_summary_in_month(month, year):
     query = """SELECT TargetCurrencyCode, SUM(BoughtAmount) AS TotalAmount, COUNT(*) AS TransactionCount
@@ -536,6 +565,11 @@ def get_transactions_summary_in_month(month, year):
 
     headings = ['TargetCurrencyCode', 'TotalAmount', 'TransactionCount']
     return render_template('table.html', headings=headings, data=fetch)
+
+
+@app.route('/get_top_5_users_with_most_exchanged_amount_in_market_in_year')
+def top_users():
+    return render_template('top_users.html')
 
 
 @app.route('/get_top_5_users_with_most_exchanged_amount_in_market_in_year/<string:baseCurrencyCode>/'

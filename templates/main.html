@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exchange Management Database</title>
+    <script>
+        function redirectToUserProfile() {
+            window.location.href = "http://127.0.0.1:5000/get_user_info";
+        }
+
+        function openTradePage() {
+            window.location.href = "http://127.0.0.1:5000/trade";
+        }
+    </script>
+</head>
+<body>
+
+    <h2>Exchange Management Database</h2>
+
+    <button onclick="redirectToUserProfile()">User Info</button>
+    <button onclick="openTradePage()">Trade</button>
+
+</body>
+</html>

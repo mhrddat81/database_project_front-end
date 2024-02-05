@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trade Execution</title>
+    <title>Transactions Summary</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -16,7 +16,7 @@
             height: 100vh;
         }
 
-        .trade-box {
+        .summary-box {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
@@ -61,15 +61,13 @@
         }
     </style>
     <script>
-        function executeTrade() {
+        function getTransactionsSummary() {
             // Get values from input fields
-            var username = document.getElementById('username').value;
-            var baseCurrency = document.getElementById('baseCurrency').value;
-            var targetCurrency = document.getElementById('targetCurrency').value;
-            var amount = document.getElementById('amount').value;
+            var month = document.getElementById('month').value;
+            var year = document.getElementById('year').value;
 
             // Construct the URL with the input values
-            var url = `http://127.0.0.1:5000/trade/${username}/${baseCurrency}/${targetCurrency}/${amount}`;
+            var url = `http://127.0.0.1:5000/get_transactions_summary_in_month/${month}/${year}`;
 
             // Log the constructed URL
             console.log(url);
@@ -81,25 +79,19 @@
 </head>
 <body>
 
-    <div class="trade-box">
+    <div class="summary-box">
 
-        <h1>Trade Execution</h1>
+        <h1>Transactions Summary</h1>
 
-        <!-- Input fields for username, base currency, target currency, and amount -->
-        <label for="username">Username:</label>
-        <input type="text" id="username">
+        <!-- Input fields for month and year -->
+        <label for="month">Month:</label>
+        <input type="text" id="month">
 
-        <label for="baseCurrency">Base Currency:</label>
-        <input type="text" id="baseCurrency">
+        <label for="year">Year:</label>
+        <input type="text" id="year">
 
-        <label for="targetCurrency">Target Currency:</label>
-        <input type="text" id="targetCurrency">
-
-        <label for="amount">Amount:</label>
-        <input type="number" id="amount">
-
-        <!-- Button to execute the trade -->
-        <button onclick="executeTrade()">Execute Trade</button>
+        <!-- Button to get transactions summary -->
+        <button onclick="getTransactionsSummary()">Get Transactions Summary</button>
 
     </div>
 
